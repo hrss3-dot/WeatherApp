@@ -32,11 +32,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.weatherapp.model.City
+import com.example.weatherapp.model.MainViewModel
+
+
 
 @Composable
-fun ListPage(modifier: Modifier = Modifier) {
-    val cityList = remember { getCities().toMutableStateList() }
+fun ListPage(modifier: Modifier = Modifier,
+            viewModel: MainViewModel
+) {
+//    val cityList = remember { getCities().toMutableStateList() }
+    val cityList = viewModel.cities
+
     // val activity = LocalActivity.current as Activity // Para os Toasts
     val context = LocalContext.current
     val activity = context as Activity
@@ -49,6 +57,7 @@ fun ListPage(modifier: Modifier = Modifier) {
         items(cityList, key = { it.name }) { city ->
             CityItem(city = city, onClose = {
                 /* TO DO */
+                viewModel.remove(city)
                 Toast.makeText(activity, "Cidade Removida", Toast.LENGTH_LONG).show();
             }, onClick = {
                 /* TO DO */
@@ -60,9 +69,7 @@ fun ListPage(modifier: Modifier = Modifier) {
 }
 
 
-private fun getCities() = List(20) { i ->
-    City(name = "Cidade $i", weather = "Carregando clima...")
-}
+
 
 @Composable
 fun CityItem(
