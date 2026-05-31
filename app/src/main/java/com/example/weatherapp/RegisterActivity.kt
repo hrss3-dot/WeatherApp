@@ -62,36 +62,32 @@ fun RegisterPage(modifier: Modifier = Modifier) {
 
 
     Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(vertical = 32.dp),
+        verticalArrangement = Arrangement.spacedBy(1.dp),
         horizontalAlignment = CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.size(12.dp))
-
         Text(
             text = "Registrar",
             fontSize = 24.sp
         )
-
-        Spacer(modifier = Modifier.size(12.dp))
         OutlinedTextField(
             value = name,
             label = { Text("Nome") },
             modifier = modifier,
             onValueChange = { name = it }
         )
-
         OutlinedTextField(
             value = email,
-            label = { Text(text = "Digite seu e-mail") },
+            label = { Text("Digite seu e-mail") },
             modifier = modifier,
             onValueChange = { email = it }
         )
-
-
         OutlinedTextField(
             value = password,
-            label = { Text(text = "Digite sua senha") },
+            label = { Text("Digite sua senha") },
             modifier = modifier,
             onValueChange = { password = it },
             visualTransformation = PasswordVisualTransformation()
@@ -103,30 +99,21 @@ fun RegisterPage(modifier: Modifier = Modifier) {
             onValueChange = { password2 = it },
             visualTransformation = PasswordVisualTransformation()
         )
-
-        Spacer(modifier = modifier.size(12.dp))
-
-
-
-        Row(modifier = modifier.padding(12.dp)) {
-            Button( onClick = {
-                Toast.makeText(activity, "Register OK!", Toast.LENGTH_LONG).show();
-                activity.finish()
-            } ,
-                enabled = email.isNotEmpty() 
-                            && name.isNotEmpty()
-                            && password.isNotEmpty() 
-                            && password2.isNotEmpty()
-                            && password == password2
-                            ) {
+        Row(modifier = Modifier.padding(1.dp)) {
+            Button(
+                onClick = {
+                    Toast.makeText(activity, "Register OK!", Toast.LENGTH_LONG).show()
+                    activity.finish()
+                },
+                enabled = email.isNotEmpty()
+                        && name.isNotEmpty()
+                        && password.isNotEmpty()
+                        && password2.isNotEmpty()
+                        && password == password2
+            ) {
                 Text("Registrar")
             }
-
-            Button(
-                onClick = { name = ""; email = ""; password = ""; password2 = ""}
-
-            )
-            {
+            Button(onClick = { name = ""; email = ""; password = ""; password2 = "" }) {
                 Text("Limpar")
             }
         }

@@ -51,16 +51,18 @@ fun LoginPage(modifier: Modifier = Modifier) {
 
     Column(
         modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.spacedBy(1.dp, Alignment.CenterVertically),
         horizontalAlignment = CenterHorizontally
     ) {
+
+        Spacer(modifier = modifier.size(4.dp))
 
         Text(
             text = "Bem-vindo/a!",
             fontSize = 24.sp
         )
 
-        Spacer(modifier = modifier.size(12.dp))
+        //Spacer(modifier = modifier.size(4.dp))
 
         OutlinedTextField(
             value = email,
@@ -69,7 +71,6 @@ fun LoginPage(modifier: Modifier = Modifier) {
             onValueChange = { email = it }
         )
 
-        Spacer(modifier = modifier.size(12.dp))
 
         OutlinedTextField(
             value = password,
@@ -79,9 +80,9 @@ fun LoginPage(modifier: Modifier = Modifier) {
             visualTransformation = PasswordVisualTransformation()
         )
 
-        Spacer(modifier = modifier.size(12.dp))
+        Spacer(modifier = modifier.size(4.dp))
 
-        Row(modifier = modifier.padding(12.dp).fillMaxSize()) {
+        Row(modifier = modifier.padding(1.dp).fillMaxSize()) {
             Button( onClick = {
                 Toast.makeText(activity, "Login OK!", Toast.LENGTH_LONG).show();
                 activity.startActivity(
