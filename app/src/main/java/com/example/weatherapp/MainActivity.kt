@@ -27,10 +27,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.weatherapp.model.MainViewModel
 import androidx.navigation.compose.rememberNavController
+import com.example.weatherapp.db.fb.FBDatabase
+import com.example.weatherapp.model.MainViewModelFactory
 import com.example.weatherapp.ui.CityDialog
 import com.example.weatherapp.ui.nav.BottomNavBar
 import com.example.weatherapp.ui.nav.BottomNavItem
@@ -46,6 +49,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val fbDB = remember { FBDatabase() }
+            val viewModel : MainViewModel = viewModel(
+                factory = MainViewModelFactory(fbDB)
+            )
+
+
             val navController = rememberNavController()
 
             val currentRoute = navController.currentBackStackEntryAsState()
@@ -54,7 +63,7 @@ class MainActivity : ComponentActivity() {
                 ActivityResultContracts.RequestPermission(), onResult = {} )
 
 
-            val viewModel : MainViewModel by viewModels()
+            //val viewModel : MainViewModel by viewModels()
             var showDialog by remember { mutableStateOf(false) }
             WeatherAppTheme {
                 if (showDialog) CityDialog(
