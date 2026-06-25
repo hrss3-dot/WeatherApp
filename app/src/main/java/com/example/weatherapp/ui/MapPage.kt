@@ -50,7 +50,7 @@ fun MapPage(modifier: Modifier = Modifier.Companion, viewModel: MainViewModel) {
 
 
     GoogleMap( modifier = modifier.fillMaxSize(), onMapClick = {
-        viewModel.add("Cidade@${it.latitude}:${it.longitude}", location = it) },
+        viewModel.addCity(location = it) },
         cameraPositionState = camPosState,
         properties = MapProperties(isMyLocationEnabled = hasLocationPermission),
         uiSettings = MapUiSettings(myLocationButtonEnabled = true)
@@ -63,26 +63,7 @@ fun MapPage(modifier: Modifier = Modifier.Companion, viewModel: MainViewModel) {
             }
         }
 
-        Marker(
-            state = recife,
-            title = "Recife",
-            snippet = "Marcador em Recife",
-            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)
-        )
 
-        Marker(
-            state = caruaru,
-            title = "Caruaru",
-            snippet = "Marcador em Caruaru",
-            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
-        )
-
-        Marker(
-            state = joaopessoa,
-            title = "Joao Pessoa",
-            snippet = "Marcador em Recife",
-            icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE)
-        )
 
 
     }
