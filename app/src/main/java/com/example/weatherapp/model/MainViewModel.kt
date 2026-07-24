@@ -12,6 +12,7 @@ import com.example.weatherapp.db.fb.FBCity
 import com.example.weatherapp.db.fb.FBDatabase
 import com.example.weatherapp.db.fb.FBUser
 import com.example.weatherapp.db.fb.toFBCity
+import com.example.weatherapp.ui.nav.Route
 import com.google.android.gms.maps.model.LatLng
 
 
@@ -20,6 +21,12 @@ class MainViewModel (private val db: FBDatabase,
 ): ViewModel(), FBDatabase.Listener  {
     private val _cities = mutableStateMapOf<String, City>()
     private val _forecast = mutableStateMapOf<String, List<Forecast>?>()
+
+    private var _page = mutableStateOf<Route>(Route.Home)
+    var page: Route
+
+        get() = _page.value
+        set(tmp) { _page.value = tmp }
 
     private var _city = mutableStateOf<String?>(null)
     var city: String?
