@@ -95,9 +95,12 @@ fun ForecastItem(
             .clickable( onClick = { onClick(forecast) }),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon( imageVector = Icons.Filled.LocationOn,
-            contentDescription = "Localized description",
-            modifier = modifier.size(48.dp) )
+        AsyncImage( // Substitui o Icon
+            model = forecast.imgUrl,
+            modifier = modifier.size(70.dp),
+            error = painterResource(id = R.drawable.loading),
+            contentDescription = "Imagem"
+        )
         Spacer(modifier = modifier.size(16.dp))
         Column {
             Text(modifier = modifier, text = forecast.weather, fontSize = 24.sp)
