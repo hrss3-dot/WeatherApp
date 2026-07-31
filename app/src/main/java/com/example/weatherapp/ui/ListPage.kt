@@ -40,7 +40,8 @@ import com.example.weatherapp.model.City
 import com.example.weatherapp.model.MainViewModel
 import com.example.weatherapp.model.Weather
 import com.example.weatherapp.ui.nav.Route
-
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.outlined.Notifications
 
 @Composable
 fun ListPage(modifier: Modifier = Modifier,
@@ -87,11 +88,19 @@ fun CityItem(
     modifier: Modifier = Modifier
 ) {
     val desc = if (weather == Weather.LOADING) "Carregando clima..." else weather.desc
+
+
+    val icon = if (city.isMonitored) {
+        Icons.Filled.Notifications
+    } else {
+        Icons.Outlined.Notifications
+    }
+
     Row(
         modifier = modifier.fillMaxWidth().padding(8.dp).clickable { onClick() },
         verticalAlignment = Alignment.CenterVertically
     ) {
-        AsyncImage( // Substitui o Icon(...)
+        AsyncImage(
             model = weather.imgUrl,
             modifier = modifier.size(75.dp),
             error = painterResource(id = R.drawable.loading),
@@ -99,9 +108,21 @@ fun CityItem(
         )
         Spacer(modifier = Modifier.size(12.dp))
         Column(modifier = modifier.weight(1f)) {
-            Text(modifier = Modifier,
-                text = city.name,
-                fontSize = 24.sp)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(modifier = Modifier,
+                    text = city.name,
+                    fontSize = 24.sp)
+
+                Spacer(modifier = Modifier.size(8.dp))
+
+
+                Icon(
+                    imageVector = icon,
+                    contentDescription = "Status de Monitoramento",
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
             Text(modifier = Modifier,
                 text = desc,
                 fontSize = 16.sp)

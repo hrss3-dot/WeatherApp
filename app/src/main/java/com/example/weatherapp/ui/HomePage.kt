@@ -32,6 +32,8 @@ import com.example.weatherapp.R
 import com.example.weatherapp.model.Forecast
 import com.example.weatherapp.model.MainViewModel
 import java.text.DecimalFormat
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.outlined.Notifications
 
 @Composable
 fun HomePage(modifier: Modifier = Modifier,viewModel: MainViewModel) {
@@ -47,7 +49,7 @@ fun HomePage(modifier: Modifier = Modifier,viewModel: MainViewModel) {
             }
         } else {
             Row {
-                AsyncImage( // Substitui o Icon
+                AsyncImage(
                     model = viewModel.weather(viewModel.city!!).imgUrl,
                     modifier = modifier.size(140.dp),
                     error = painterResource(id = R.drawable.loading),
@@ -56,8 +58,29 @@ fun HomePage(modifier: Modifier = Modifier,viewModel: MainViewModel) {
 
                 Column {
                     Spacer(modifier = modifier.size(12.dp))
-                    Text( text = viewModel.city ?: "Selecione uma cidade...",
-                        fontSize = 28.sp )
+
+                    val city = viewModel.cities.find { it.name == viewModel.city }
+
+                    val icon = if (city?.isMonitored == true) {
+                        Icons.Filled.Notifications
+                    } else {
+                        Icons.Outlined.Notifications
+                    }
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text( text = viewModel.city ?: "Selecione uma cidade...",
+                            fontSize = 28.sp )
+
+                        Spacer(modifier = Modifier.size(8.dp))
+
+
+                        Icon( imageVector = icon, contentDescription = "Monitorada?",
+                            modifier = Modifier.size(32.dp).clickable {
+                                viewModel.update(city = city!!.copy(isMonitored = !city.isMonitored))
+                            }
+                        )
+                    }
+
                     viewModel.city?.let { name ->
                         val weather = viewModel.weather(name)
                         Spacer(modifier = modifier.size(12.dp))
