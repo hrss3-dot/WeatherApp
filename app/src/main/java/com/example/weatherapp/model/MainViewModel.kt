@@ -13,12 +13,14 @@ import com.example.weatherapp.db.fb.FBCity
 import com.example.weatherapp.db.fb.FBDatabase
 import com.example.weatherapp.db.fb.FBUser
 import com.example.weatherapp.db.fb.toFBCity
+import com.example.weatherapp.monitor.ForecastMonitor
 import com.example.weatherapp.ui.nav.Route
 import com.google.android.gms.maps.model.LatLng
 
 
 class MainViewModel (private val db: FBDatabase,
-                     private val service : WeatherService
+                     private val service : WeatherService,
+                     private val monitor: ForecastMonitor
 ): ViewModel(), FBDatabase.Listener  {
     private val _cities = mutableStateMapOf<String, City>()
     private val _forecast = mutableStateMapOf<String, List<Forecast>?>()
@@ -74,18 +76,26 @@ class MainViewModel (private val db: FBDatabase,
     override fun onUserLoaded(user: FBUser) {
         _user.value = user.toUser()
     }
+
+
     override fun onUserSignOut() {
-        //TODO("Not yet implemented")
+        monitor.cancelAll()
     }
+
     override fun onCityAdded(city: FBCity) {
         _cities[city.name!!] = city.toCity()
+        monitor.updateCity(city.toCity())
     }
+
     override fun onCityUpdated(city: FBCity) {
         _cities.remove(city.name)
         _cities[city.name!!] = city.toCity()
+        monitor.updateCity(city.toCity())
     }
+
     override fun onCityRemoved(city: FBCity) {
         _cities.remove(city.name)
+        monitor.cancelCity(city.toCity())
     }
     
 

@@ -1,12 +1,12 @@
 package com.example.weatherapp
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -23,11 +23,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.core.util.Consumer
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -36,6 +38,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.weatherapp.api.WeatherService
 import com.example.weatherapp.db.fb.FBDatabase
 import com.example.weatherapp.model.MainViewModelFactory
+import com.example.weatherapp.monitor.ForecastMonitor
+// Certifique-se de que o import abaixo corresponde ao pacote correto do seu ForecastMonitor
+// import com.example.weatherapp.model.ForecastMonitor
 import com.example.weatherapp.ui.CityDialog
 import com.example.weatherapp.ui.nav.BottomNavBar
 import com.example.weatherapp.ui.nav.BottomNavItem
@@ -53,10 +58,25 @@ class MainActivity : ComponentActivity() {
         setContent {
             val fbDB = remember { FBDatabase() }
             val weatherService = remember { WeatherService(this) }
+
+
+            val monitor = remember { ForecastMonitor(this@MainActivity) }
+
+
             val viewModel : MainViewModel = viewModel(
-                factory = MainViewModelFactory(fbDB, weatherService)
+                factory = MainViewModelFactory(fbDB, weatherService, monitor)
             )
 
+            // --- INÍCIO DO PASSO 6 ---
+            DisposableEffect(Unit) {
+                val listener = Consumer<Intent> { intent ->
+                    viewModel.city = intent.getStringExtra("city")
+                    viewModel.page = Route.Home
+                }
+                addOnNewIntentListener(listener)
+                onDispose { removeOnNewIntentListener(listener) }
+            }
+            // --- FIM DO PASSO 6 ---
 
 
             val navController = rememberNavController()
@@ -67,7 +87,6 @@ class MainActivity : ComponentActivity() {
                 ActivityResultContracts.RequestPermission(), onResult = {} )
 
 
-            //val viewModel : MainViewModel by viewModels()
             var showDialog by remember { mutableStateOf(false) }
             WeatherAppTheme {
                 if (showDialog) CityDialog(
@@ -139,4 +158,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
