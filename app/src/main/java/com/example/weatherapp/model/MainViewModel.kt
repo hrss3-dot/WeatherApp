@@ -1,33 +1,29 @@
 package com.example.weatherapp.model
 
-
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import com.example.weatherapp.api.WeatherService
 import com.example.weatherapp.api.toForecast
 import com.example.weatherapp.api.toWeather
-import com.example.weatherapp.db.fb.FBCity
-import com.example.weatherapp.db.fb.FBDatabase
-import com.example.weatherapp.db.fb.FBUser
-import com.example.weatherapp.db.fb.toFBCity
 import com.example.weatherapp.monitor.ForecastMonitor
+import com.example.weatherapp.repo.Repository
 import com.example.weatherapp.ui.nav.Route
 import com.google.android.gms.maps.model.LatLng
+// Certifique-se de importar o seu Repository
+// import com.example.weatherapp.db.Repository
 
+class MainViewModel (
+    private val repository: Repository, // Substituído FBDatabase por Repository
+    private val service: WeatherService,
+    private val monitor: ForecastMonitor
+): ViewModel(), Repository.Listener { // Implementando Repository.Listener
 
-class MainViewModel (private val db: FBDatabase,
-                     private val service : WeatherService,
-                     private val monitor: ForecastMonitor
-): ViewModel(), FBDatabase.Listener  {
     private val _cities = mutableStateMapOf<String, City>()
     private val _forecast = mutableStateMapOf<String, List<Forecast>?>()
 
     private var _page = mutableStateOf<Route>(Route.Home)
     var page: Route
-
         get() = _page.value
         set(tmp) { _page.value = tmp }
 
@@ -36,72 +32,72 @@ class MainViewModel (private val db: FBDatabase,
         get() = _city.value
         set(tmp) { _city.value = tmp }
 
-
-    val cities : List<City>
+    val cities: List<City>
         get() = _cities.values.toList().sortedBy { it.name }
+
     private val _weather = mutableStateMapOf<String, Weather>()
 
-    private val _user = mutableStateOf<User?> (null)
-    val user : User?
+    private val _user = mutableStateOf<User?>(null)
+    val user: User?
         get() = _user.value
+
     init {
-        db.setListener(this)
+        repository.setListener(this) // Atualizado para repository
     }
+
     fun remove(city: City) {
-        db.remove(city.toFBCity())
+        repository.remove(city) // Removido o .toFBCity()
     }
 
     fun update(city: City) {
-        db.update(city.toFBCity())
+        repository.update(city) // Removido o .toFBCity()
     }
-   // fun add(name: String, location : LatLng? = null) {
-    //    db.add(City(name = name, location = location).toFBCity())
-   // }
 
     fun addCity(name: String) {
         service.getLocation(name) { lat, lng ->
             if (lat != null && lng != null) {
-                db.add(City(name=name, location=LatLng(lat, lng)).toFBCity())
+                repository.add(City(name = name, location = LatLng(lat, lng))) // Removido o .toFBCity()
             }
         }
     }
+
     fun addCity(location: LatLng) {
         service.getName(location.latitude, location.longitude) { name ->
             if (name != null) {
-                db.add(City(name = name, location = location).toFBCity())
+                repository.add(City(name = name, location = location)) // Removido o .toFBCity()
             }
         }
     }
 
-    override fun onUserLoaded(user: FBUser) {
-        _user.value = user.toUser()
-    }
 
+    override fun onUserLoaded(user: User) {
+        _user.value = user
+    }
 
     override fun onUserSignOut() {
         monitor.cancelAll()
     }
 
-    override fun onCityAdded(city: FBCity) {
-        _cities[city.name!!] = city.toCity()
-        monitor.updateCity(city.toCity())
+    override fun onCityAdded(city: City) {
+        _cities[city.name] = city
+        monitor.updateCity(city)
     }
 
-    override fun onCityUpdated(city: FBCity) {
+    override fun onCityUpdated(city: City) {
         _cities.remove(city.name)
-        _cities[city.name!!] = city.toCity()
-        monitor.updateCity(city.toCity())
+        _cities[city.name] = city
+        monitor.updateCity(city)
     }
 
-    override fun onCityRemoved(city: FBCity) {
+    override fun onCityRemoved(city: City) {
         _cities.remove(city.name)
-        monitor.cancelCity(city.toCity())
+        monitor.cancelCity(city)
     }
-    
 
-    fun weather (name: String) = _weather.getOrPut(name) {
+
+    fun weather(name: String) = _weather.getOrPut(name) {
         loadWeather(name)
-        Weather.LOADING // retorno
+        Weather.LOADING
     }
 
     private fun loadWeather(name: String) {
@@ -121,10 +117,9 @@ class MainViewModel (private val db: FBDatabase,
         }
     }
 
-
-    fun forecast (name: String) = _forecast.getOrPut(name) {
+    fun forecast(name: String) = _forecast.getOrPut(name) {
         loadForecast(name)
-        emptyList() // return
+        emptyList()
     }
 
     private fun loadForecast(name: String) {
@@ -134,6 +129,4 @@ class MainViewModel (private val db: FBDatabase,
             }
         }
     }
-
 }
-

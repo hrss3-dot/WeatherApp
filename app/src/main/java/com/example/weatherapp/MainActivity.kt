@@ -37,10 +37,10 @@ import com.example.weatherapp.model.MainViewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.weatherapp.api.WeatherService
 import com.example.weatherapp.db.fb.FBDatabase
+import com.example.weatherapp.db.local.LocalDatabase // Import adicionado
 import com.example.weatherapp.model.MainViewModelFactory
 import com.example.weatherapp.monitor.ForecastMonitor
-// Certifique-se de que o import abaixo corresponde ao pacote correto do seu ForecastMonitor
-// import com.example.weatherapp.model.ForecastMonitor
+import com.example.weatherapp.repo.Repository
 import com.example.weatherapp.ui.CityDialog
 import com.example.weatherapp.ui.nav.BottomNavBar
 import com.example.weatherapp.ui.nav.BottomNavItem
@@ -57,14 +57,26 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val fbDB = remember { FBDatabase() }
+
+            // --- INÍCIO DO PASSO 3 ---
+
+            // 1. Pega o uid do usuário logado (usa um fallback caso seja null momentaneamente)
+            val uid = Firebase.auth.currentUser?.uid ?: "local_db"
+
+            // 2. Instancia o LocalDatabase usando o uid como nome
+            val localDB = remember { LocalDatabase(this@MainActivity, uid) }
+
+            // 3. Instancia o Repository recebendo os dois bancos de dados
+            val repository = remember { Repository(fbDB, localDB) }
+
+            // --- FIM DO PASSO 3 ---
+
             val weatherService = remember { WeatherService(this) }
-
-
             val monitor = remember { ForecastMonitor(this@MainActivity) }
 
-
+            // 4. Modifica a Factory para receber o repository ao invés do fbDB
             val viewModel : MainViewModel = viewModel(
-                factory = MainViewModelFactory(fbDB, weatherService, monitor)
+                factory = MainViewModelFactory(repository, weatherService, monitor)
             )
 
             // --- INÍCIO DO PASSO 6 ---
